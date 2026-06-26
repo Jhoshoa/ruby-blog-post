@@ -1,0 +1,14 @@
+<h1><%= @post.title %></h1>
+
+<p><%= @post.body %></p>
+
+<% if @post.published? %>
+  <span>Published</span>
+<% else %>
+  <span>Draft</span>
+<% end %>
+
+<br><br>
+
+<%= link_to "Edit", edit_post_path(@post) %> |
+<%= link_to "Back to Posts", posts_path %>
