@@ -1,4 +1,4 @@
-<%= form_with model: post, class: "space-y-6" do |form| %>
+<%= form_with model: post, class: "space-y-6", html: { multipart: true } do |form| %>
 
   <% if post.errors.any? %>
     <div class="rounded-lg bg-red-50 p-4 ring-1 ring-inset ring-red-400/50">
@@ -43,6 +43,22 @@
   <div class="flex items-center gap-x-3">
     <%= form.check_box :published, class: "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" %>
     <%= form.label :published, "Publish immediately", class: "block text-sm font-medium leading-6 text-gray-900" %>
+  </div>
+
+  <div>
+    <%= form.label :image, "Cover image (optional)", class: "block text-sm font-medium leading-6 text-gray-900" %>
+    <div class="mt-2 flex items-center gap-x-4">
+      <%= form.file_field :image,
+            accept: "image/png,image/jpeg,image/webp,image/gif",
+            class: "block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 file:cursor-pointer file:transition-colors" %>
+    </div>
+    <p class="mt-1 text-xs text-gray-500">PNG, JPG, WebP or GIF. Max 5MB.</p>
+    <% if post.image.attached? %>
+      <div class="mt-3">
+        <p class="text-sm text-gray-600 mb-1">Current image:</p>
+        <%= image_tag post.image, class: "h-32 w-auto rounded-lg object-cover ring-1 ring-gray-200" %>
+      </div>
+    <% end %>
   </div>
 
   <div class="flex items-center gap-x-4 pt-2">

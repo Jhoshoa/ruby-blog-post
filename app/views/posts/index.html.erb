@@ -11,29 +11,36 @@
 <% if @posts.any? %>
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
     <% @posts.each do |post| %>
-      <div class="relative flex flex-col rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 hover:shadow-md transition-shadow">
-        <div class="flex-1">
-          <div class="flex items-center gap-2 mb-3">
-            <% if post.published? %>
-              <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Published</span>
-            <% else %>
-              <span class="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-600/20">Draft</span>
-            <% end %>
+      <div class="relative flex flex-col rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 hover:shadow-md transition-shadow overflow-hidden">
+        <% if post.image.attached? %>
+          <div class="h-40 w-full">
+            <%= image_tag post.image, class: "h-full w-full object-cover" %>
           </div>
-          <h2 class="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
-            <%= link_to post.title, post %>
-          </h2>
-          <p class="mt-2 text-sm text-gray-600 line-clamp-3">
-            <%= post.body.truncate(150) %>
-          </p>
-        </div>
-        <div class="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
-          <span class="text-xs text-gray-500">
-            <%= time_ago_in_words(post.created_at) %> ago
-          </span>
-          <div class="flex items-center gap-3">
-            <%= link_to "Edit", edit_post_path(post), class: "text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors" %>
-            <%= button_to "Delete", post, method: :delete, data: { confirm: "Are you sure you want to delete this post?" }, class: "text-sm font-medium text-red-600 hover:text-red-500 transition-colors" %>
+        <% end %>
+        <div class="flex flex-col flex-1">
+          <div class="p-6 flex-1">
+            <div class="flex items-center gap-2 mb-3">
+              <% if post.published? %>
+                <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Published</span>
+              <% else %>
+                <span class="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-600/20">Draft</span>
+              <% end %>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
+              <%= link_to post.title, post %>
+            </h2>
+            <p class="mt-2 text-sm text-gray-600 line-clamp-3">
+              <%= post.body.truncate(150) %>
+            </p>
+          </div>
+          <div class="flex items-center justify-between border-t border-gray-100 px-6 py-4">
+            <span class="text-xs text-gray-500">
+              <%= time_ago_in_words(post.created_at) %> ago
+            </span>
+            <div class="flex items-center gap-3">
+              <%= link_to "Edit", edit_post_path(post), class: "text-sm font-medium text-indigo-600 hover:text-indigo-500 transition-colors" %>
+              <%= button_to "Delete", post, method: :delete, data: { confirm: "Are you sure you want to delete this post?" }, class: "text-sm font-medium text-red-600 hover:text-red-500 transition-colors" %>
+            </div>
           </div>
         </div>
       </div>
