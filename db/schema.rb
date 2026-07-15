@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_15_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_15_160411) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -39,22 +39,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_15_150000) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "categories", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "name", null: false
-    t.string "slug", null: false
-    t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_categories_on_name", unique: true
-    t.index ["slug"], name: "index_categories_on_slug", unique: true
-  end
-
-  create_table "categories_posts", id: false, force: :cascade do |t|
-    t.integer "category_id", null: false
-    t.integer "post_id", null: false
-    t.index ["category_id", "post_id"], name: "index_categories_posts_on_category_id_and_post_id"
-    t.index ["post_id", "category_id"], name: "index_categories_posts_on_post_id_and_category_id"
-  end
-
   create_table "comments", force: :cascade do |t|
     t.text "body", null: false
     t.datetime "created_at", null: false
@@ -68,6 +52,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_15_150000) do
 
   create_table "posts", force: :cascade do |t|
     t.text "body"
+    t.integer "category", default: 0, null: false
     t.integer "comments_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.boolean "published"

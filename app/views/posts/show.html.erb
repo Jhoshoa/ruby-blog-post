@@ -23,7 +23,9 @@
   </p>
 
   <div class="mb-4">
-    <%= render partial: "posts/categories", locals: { categories: @post.categories } %>
+    <% if @post.category.present? %>
+      <span class="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20"><%= @post.category_name %></span>
+    <% end %>
   </div>
 
   <% if @post.image.attached? %>

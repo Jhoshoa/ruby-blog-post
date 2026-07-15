@@ -9,7 +9,6 @@ Rails.application.routes.draw do
   resources :posts do
     resources :comments, only: [:create, :destroy]
   end
-  resources :categories, only: [:index, :show], param: :slug
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check

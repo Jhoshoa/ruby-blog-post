@@ -32,7 +32,6 @@
               <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline space-x-4">
                   <%= link_to "All Posts", posts_path, class: "rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 transition-colors #{request.path == posts_path ? 'bg-gray-100 text-indigo-600' : ''}" %>
-                  <%= link_to "Categories", categories_path, class: "rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 transition-colors #{request.path.start_with?('/categories') ? 'bg-gray-100 text-indigo-600' : ''}" %>
                   <% if user_signed_in? %>
                     <%= link_to "New Post", new_post_path, class: "rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100 transition-colors #{request.path == new_post_path ? 'bg-gray-100 text-indigo-600' : ''}" %>
                   <% end %>

@@ -1,7 +1,0 @@
-<% if categories.any? %>
-  <div class="flex flex-wrap gap-1.5">
-    <% categories.each do |category| %>
-      <%= link_to category.name, category_path(category.slug), class: "inline-flex items-center rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20 hover:bg-indigo-100 transition-colors" %>
-    <% end %>
-  </div>
-<% end %>

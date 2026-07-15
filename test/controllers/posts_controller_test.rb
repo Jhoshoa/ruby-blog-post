@@ -4,8 +4,8 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @alice = users(:alice)
     @bob = users(:bob)
-    @alice_post = @alice.posts.create!(title: "Alice's Post", body: "Alice wrote this.", published: true)
-    @bob_post = @bob.posts.create!(title: "Bob's Post", body: "Bob wrote this.", published: false)
+    @alice_post = @alice.posts.create!(title: "Alice's Post", body: "Alice wrote this.", published: true, category: "Technology")
+    @bob_post = @bob.posts.create!(title: "Bob's Post", body: "Bob wrote this.", published: false, category: "Lifestyle")
   end
 
   # INDEX
@@ -32,6 +32,12 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /By Bob/
   end
 
+  test "index shows category badge for posts with category" do
+    get posts_path
+    assert_select "span", text: "Technology"
+    assert_select "span", text: "Lifestyle"
+  end
+
   # SHOW
   test "should get show without authentication" do
     get post_path(@alice_post)
@@ -44,25 +50,22 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_select "span.font-medium", text: "Alice"
   end
 
+  test "show displays category" do
+    get post_path(@alice_post)
+    assert_select "span", text: "Technology"
+  end
+
   # NEW / CREATE
   test "unauthenticated user cannot access new post" do
     get new_post_path
     assert_redirected_to sign_in_path
   end
 
-  test "new post form displays category selector when categories exist" do
+  test "new post form displays category selector" do
     sign_in_as_user(@alice)
     get new_post_path
     assert_response :success
-    assert_select "input[type='checkbox'][name*='category_ids']", minimum: 1
-  end
-
-  test "new post form does not display category selector when no categories exist" do
-    Category.destroy_all
-    sign_in_as_user(@alice)
-    get new_post_path
-    assert_response :success
-    assert_select "input[type='checkbox'][name*='category_ids']", count: 0
+    assert_select "[data-controller='category-selector']"
   end
 
   test "unauthenticated user cannot create post" do
@@ -72,14 +75,23 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to sign_in_path
   end
 
-  test "authenticated user can create post" do
+  test "authenticated user can create post without category" do
     sign_in_as_user(@alice)
     assert_difference("Post.count", 1) do
       post posts_path, params: { post: { title: "My New Post", body: "Great content.", published: true } }
     end
     assert_redirected_to post_path(Post.last)
     assert_equal @alice, Post.last.user
-    assert_empty Post.last.categories
+    assert_equal "General", Post.last.category
+  end
+
+  test "authenticated user can create post with category" do
+    sign_in_as_user(@alice)
+    assert_difference("Post.count", 1) do
+      post posts_path, params: { post: { title: "Categorized Post", body: "Content", category: "Technology" } }
+    end
+    assert_redirected_to post_path(Post.last)
+    assert_equal "Technology", Post.last.category
   end
 
   test "authenticated user cannot create post with invalid data" do
@@ -118,6 +130,14 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Updated Title", @alice_post.title
   end
 
+  test "author can update post category" do
+    sign_in_as_user(@alice)
+    patch post_path(@alice_post), params: { post: { category: "Design" } }
+    assert_redirected_to post_path(@alice_post)
+    @alice_post.reload
+    assert_equal "Design", @alice_post.category
+  end
+
   test "non-author cannot update another user's post" do
     sign_in_as_user(@bob)
     patch post_path(@alice_post), params: { post: { title: "Hacked" } }
@@ -150,40 +170,9 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to posts_path
   end
 
-  # CATEGORIES ON POSTS
-  test "authenticated user can create post with categories" do
-    category = categories(:technology)
-    sign_in_as_user(@alice)
-    assert_difference("Post.count", 1) do
-      post posts_path, params: { post: { title: "Categorized Post", body: "Content", category_ids: [category.id] } }
-    end
-    assert_includes Post.last.categories, category
-  end
-
-  test "author can update post categories" do
-    category = categories(:technology)
-    sign_in_as_user(@alice)
-    patch post_path(@alice_post), params: { post: { category_ids: [category.id] } }
-    assert_redirected_to post_path(@alice_post)
-    @alice_post.reload
-    assert_includes @alice_post.categories, category
-  end
-
-  test "author can remove all categories from post" do
-    category = categories(:technology)
-    @alice_post.categories << category
-    sign_in_as_user(@alice)
-    patch post_path(@alice_post), params: { post: { category_ids: [] } }
-    @alice_post.reload
-    assert_empty @alice_post.categories
-  end
-
   # CATEGORY FILTERING
-  test "index filters posts by category slug" do
-    category = categories(:technology)
-    @alice_post.categories << category
-
-    get posts_path(category: category.slug)
+  test "index filters posts by category enum" do
+    get posts_path(category: "Technology")
     assert_response :success
     assert_select "h2", text: @alice_post.title
     assert_select "h2", text: @bob_post.title, count: 0
@@ -197,7 +186,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index shows empty state when filtering by nonexistent category" do
-    get posts_path(category: "nonexistent")
+    get posts_path(category: 9999)
     assert_response :success
     assert_select ".grid", count: 0
   end
@@ -243,8 +232,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
 
   # PAGINATION
   test "index shows pagination nav when more than 12 posts" do
-    user = users(:alice)
-    13.times { |i| user.posts.create!(title: "Pagy Post #{i}", body: "Content #{i}") }
+    13.times { |i| @alice.posts.create!(title: "Pagy Post #{i}", body: "Content #{i}") }
     get posts_path
     assert_response :success
     assert_select "nav.pagy"
@@ -258,21 +246,8 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index respects page parameter" do
-    user = users(:alice)
-    13.times { |i| user.posts.create!(title: "Page Two Post #{i}", body: "Content #{i}") }
+    13.times { |i| @alice.posts.create!(title: "Page Two Post #{i}", body: "Content #{i}") }
     get posts_path(page: 2)
-    assert_response :success
-    assert_select "nav.pagy"
-  end
-
-  test "category show uses pagination" do
-    category = categories(:technology)
-    user = users(:alice)
-    13.times do |i|
-      post = user.posts.create!(title: "Tech #{i}", body: "Content #{i}")
-      post.categories << category
-    end
-    get category_path(category.slug)
     assert_response :success
     assert_select "nav.pagy"
   end

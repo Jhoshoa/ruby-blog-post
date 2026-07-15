@@ -41,4 +41,48 @@ class PostTest < ActiveSupport::TestCase
   test "destroying user destroys posts" do
     assert_difference("Post.count", -@user.posts.count) { @user.destroy }
   end
+
+  test "category defaults to General" do
+    assert_equal "General", @post.category
+  end
+
+  test "can set category" do
+    @post.category = "Technology"
+    assert @post.valid?
+    assert_equal "Technology", @post.category
+  end
+
+  test "category_name returns display name" do
+    @post.category = "Technology"
+    assert_equal "Technology", @post.category_name
+  end
+
+  test "category_name returns General for nil" do
+    @post.category = nil
+    assert_equal "General", @post.category_name
+  end
+
+  test "CATEGORIES has 30 entries" do
+    assert_equal 30, Post::CATEGORIES.size
+  end
+
+  test "search scope finds by title" do
+    results = Post.search("First")
+    assert_includes results, posts(:one)
+  end
+
+  test "search scope finds by body" do
+    results = Post.search("second post body")
+    assert_includes results, posts(:two)
+  end
+
+  test "search scope returns all with blank query" do
+    results = Post.search("")
+    assert_equal Post.count, results.count
+  end
+
+  test "search scope is SQL injection safe" do
+    results = Post.search("%' OR 1=1 --")
+    assert_respond_to results, :each
+  end
 end

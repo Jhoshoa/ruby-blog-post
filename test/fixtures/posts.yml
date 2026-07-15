@@ -3,9 +3,11 @@ one:
   body: This is the first post body content.
   published: false
   user: alice
+  category: 1
 
 two:
   title: Second Post
   body: This is the second post body content.
   published: true
   user: bob
+  category: 2

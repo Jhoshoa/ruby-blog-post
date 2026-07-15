@@ -4,9 +4,9 @@ class PostsController < ApplicationController
   before_action :authorize_post, only: [:edit, :update, :destroy]
 
   def index
-    posts = Post.includes(:user, :categories).order(created_at: :desc)
+    posts = Post.includes(:user).order(created_at: :desc)
     posts = posts.search(params[:q]) if params[:q].present?
-    posts = posts.joins(:categories).where(categories: { slug: params[:category] }) if params[:category].present?
+    posts = posts.where(category: params[:category]) if params[:category].present?
     @pagy, @posts = pagy(:offset, posts, limit: 12)
   end
 
@@ -46,7 +46,7 @@ class PostsController < ApplicationController
   private
 
   def set_post
-    @post = Post.includes(:user, :categories, comments: :user).find(params[:id])
+    @post = Post.includes(:user, comments: :user).find(params[:id])
   end
 
   def authorize_post
@@ -56,6 +56,12 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:title, :body, :published, :image, category_ids: [])
+    params.require(:post).permit(:title, :body, :published, :image, :category).tap do |p|
+      if p[:category].present? && p[:category] !~ /\A\d+\z/
+        p[:category] = Post::CATEGORIES[p[:category]]
+      elsif p[:category].present?
+        p[:category] = p[:category].to_i
+      end
+    end
   end
 end

@@ -15,8 +15,8 @@
     <%= text_field_tag :q, params[:q], placeholder: "Search posts by title or content...",
           class: "flex-1 rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 transition-shadow" %>
     <%= submit_tag "Search", class: "rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors cursor-pointer" %>
-    <% if params[:q].present? %>
-      <%= link_to "Clear", posts_path(category: params[:category]), class: "rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors" %>
+    <% if params[:q].present? || params[:category].present? %>
+      <%= link_to "Clear", posts_path, class: "rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors" %>
     <% end %>
   </div>
   <% if params[:q].present? %>
@@ -44,8 +44,10 @@
               <% else %>
                 <span class="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-600/20">Draft</span>
               <% end %>
+              <% if post.category.present? %>
+                <span class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20"><%= post.category_name %></span>
+              <% end %>
             </div>
-            <%= render partial: "posts/categories", locals: { categories: post.categories } %>
             <p class="text-xs text-gray-500 mb-1">By <%= post.user.name %></p>
             <h2 class="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
               <%= link_to post.title, post %>
