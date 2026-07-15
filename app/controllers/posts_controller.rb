@@ -44,7 +44,7 @@ class PostsController < ApplicationController
   private
 
   def set_post
-    @post = Post.includes(:user, :categories).find(params[:id])
+    @post = Post.includes(:user, :categories, comments: :user).find(params[:id])
   end
 
   def authorize_post

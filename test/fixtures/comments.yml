@@ -1,0 +1,9 @@
+alice_on_two:
+  body: This is a great post, Alice!
+  user: alice
+  post: two
+
+bob_on_one:
+  body: Nice work on this one.
+  user: bob
+  post: one

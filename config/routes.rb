@@ -6,7 +6,9 @@ Rails.application.routes.draw do
   post "sign_in", to: "sessions#create"
   delete "logout", to: "sessions#destroy", as: :logout
 
-  resources :posts
+  resources :posts do
+    resources :comments, only: [:create, :destroy]
+  end
   resources :categories, only: [:index, :show], param: :slug
 
   # Health check

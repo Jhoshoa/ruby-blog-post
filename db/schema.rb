@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_15_140001) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_15_150000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -55,8 +55,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_15_140001) do
     t.index ["post_id", "category_id"], name: "index_categories_posts_on_post_id_and_category_id"
   end
 
+  create_table "comments", force: :cascade do |t|
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.integer "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["post_id", "created_at"], name: "index_comments_on_post_id_and_created_at"
+    t.index ["post_id"], name: "index_comments_on_post_id"
+    t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
   create_table "posts", force: :cascade do |t|
     t.text "body"
+    t.integer "comments_count", default: 0, null: false
     t.datetime "created_at", null: false
     t.boolean "published"
     t.string "title"
@@ -76,5 +88,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_15_140001) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "comments", "posts"
+  add_foreign_key "comments", "users"
   add_foreign_key "posts", "users"
 end

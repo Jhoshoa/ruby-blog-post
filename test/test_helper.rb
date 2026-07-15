@@ -4,7 +4,7 @@ require "rails/test_help"
 
 module ActiveSupport
   class TestCase
-    fixtures :users, :posts, :categories
+    fixtures :users, :posts, :categories, :comments
   end
 end
 
