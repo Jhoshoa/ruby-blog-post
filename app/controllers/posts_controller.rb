@@ -1,23 +1,24 @@
-# app/controllers/posts_controller.rb
 class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :destroy]
+  before_action :require_login, only: [:new, :create, :edit, :update, :destroy]
+  before_action :authorize_post, only: [:edit, :update, :destroy]
 
   def index
-    @posts = Post.all.order(created_at: :desc)
+    @posts = Post.includes(:user).order(created_at: :desc)
   end
 
   def show
   end
 
   def new
-    @post = Post.new
+    @post = Current.user.posts.build
   end
 
   def edit
   end
 
   def create
-    @post = Post.new(post_params)
+    @post = Current.user.posts.build(post_params)
 
     if @post.save
       redirect_to @post, notice: "Post was created."
@@ -42,7 +43,13 @@ class PostsController < ApplicationController
   private
 
   def set_post
-    @post = Post.find(params[:id])
+    @post = Post.includes(:user).find(params[:id])
+  end
+
+  def authorize_post
+    unless @post.user == Current.user
+      redirect_to posts_path, alert: "You are not authorized to perform this action."
+    end
   end
 
   def post_params

@@ -1,11 +1,11 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  title: MyString
-  body: MyText
+  title: First Post
+  body: This is the first post body content.
   published: false
+  user: alice
 
 two:
-  title: MyString
-  body: MyText
-  published: false
+  title: Second Post
+  body: This is the second post body content.
+  published: true
+  user: bob
