@@ -50,6 +50,21 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to sign_in_path
   end
 
+  test "new post form displays category selector when categories exist" do
+    sign_in_as_user(@alice)
+    get new_post_path
+    assert_response :success
+    assert_select "input[type='checkbox'][name*='category_ids']", minimum: 1
+  end
+
+  test "new post form does not display category selector when no categories exist" do
+    Category.destroy_all
+    sign_in_as_user(@alice)
+    get new_post_path
+    assert_response :success
+    assert_select "input[type='checkbox'][name*='category_ids']", count: 0
+  end
+
   test "unauthenticated user cannot create post" do
     assert_no_difference("Post.count") do
       post posts_path, params: { post: { title: "New Post", body: "Content" } }
@@ -64,6 +79,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to post_path(Post.last)
     assert_equal @alice, Post.last.user
+    assert_empty Post.last.categories
   end
 
   test "authenticated user cannot create post with invalid data" do
