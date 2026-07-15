@@ -185,4 +185,79 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".grid", count: 0
   end
+
+  # SEARCH
+  test "index searches posts by title" do
+    get posts_path(q: "Alice")
+    assert_response :success
+    assert_select "h2", text: "Alice's Post"
+    assert_select "h2", text: "Bob's Post", count: 0
+  end
+
+  test "index searches posts by body content" do
+    get posts_path(q: "Bob wrote")
+    assert_response :success
+    assert_select "h2", text: "Bob's Post"
+    assert_select "h2", text: "Alice's Post", count: 0
+  end
+
+  test "index shows empty state when search has no results" do
+    get posts_path(q: "nonexistent term xyz")
+    assert_response :success
+    assert_select ".grid", count: 0
+    assert_select "h3", text: "No posts found"
+  end
+
+  test "search with empty query returns all posts" do
+    get posts_path(q: "")
+    assert_response :success
+    assert_select "h2", text: "Alice's Post"
+    assert_select "h2", text: "Bob's Post"
+  end
+
+  test "search displays result count" do
+    get posts_path(q: "Alice")
+    assert_select "p", text: /1 post found/
+  end
+
+  test "search is SQL injection safe" do
+    get posts_path(q: "%' OR 1=1 --")
+    assert_response :success
+  end
+
+  # PAGINATION
+  test "index shows pagination nav when more than 12 posts" do
+    user = users(:alice)
+    13.times { |i| user.posts.create!(title: "Pagy Post #{i}", body: "Content #{i}") }
+    get posts_path
+    assert_response :success
+    assert_select "nav.pagy"
+  end
+
+  test "index does not show prev/next links when 12 or fewer posts" do
+    get posts_path
+    assert_response :success
+    assert_select "nav.pagy a[rel='prev']", count: 0
+    assert_select "nav.pagy a[rel='next']", count: 0
+  end
+
+  test "index respects page parameter" do
+    user = users(:alice)
+    13.times { |i| user.posts.create!(title: "Page Two Post #{i}", body: "Content #{i}") }
+    get posts_path(page: 2)
+    assert_response :success
+    assert_select "nav.pagy"
+  end
+
+  test "category show uses pagination" do
+    category = categories(:technology)
+    user = users(:alice)
+    13.times do |i|
+      post = user.posts.create!(title: "Tech #{i}", body: "Content #{i}")
+      post.categories << category
+    end
+    get category_path(category.slug)
+    assert_response :success
+    assert_select "nav.pagy"
+  end
 end

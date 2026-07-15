@@ -4,8 +4,10 @@ class PostsController < ApplicationController
   before_action :authorize_post, only: [:edit, :update, :destroy]
 
   def index
-    @posts = Post.includes(:user, :categories).order(created_at: :desc)
-    @posts = @posts.joins(:categories).where(categories: { slug: params[:category] }) if params[:category].present?
+    posts = Post.includes(:user, :categories).order(created_at: :desc)
+    posts = posts.search(params[:q]) if params[:q].present?
+    posts = posts.joins(:categories).where(categories: { slug: params[:category] }) if params[:category].present?
+    @pagy, @posts = pagy(:offset, posts, limit: 12)
   end
 
   def show

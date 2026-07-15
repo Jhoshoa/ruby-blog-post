@@ -8,6 +8,10 @@ class Post < ApplicationRecord
   validates :body, presence: true
   validate :acceptable_image
 
+  scope :search, ->(query) {
+    where("title LIKE :q OR body LIKE :q", q: "%#{sanitize_sql_like(query)}%") if query.present?
+  }
+
   private
 
   def acceptable_image
