@@ -65,7 +65,7 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     sign_in_as_user(@alice)
     get new_post_path
     assert_response :success
-    assert_select "[data-controller='category-selector']"
+    assert_select "select[name='post[category]']"
   end
 
   test "unauthenticated user cannot create post" do

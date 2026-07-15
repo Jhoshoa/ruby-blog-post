@@ -57,10 +57,10 @@ class PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:title, :body, :published, :image, :category).tap do |p|
-      if p[:category].present? && p[:category] !~ /\A\d+\z/
-        p[:category] = Post::CATEGORIES[p[:category]]
-      elsif p[:category].present?
-        p[:category] = p[:category].to_i
+      if p[:category].present?
+        p[:category] = Post::CATEGORIES[p[:category]] if p[:category] !~ /\A\d+\z/
+      else
+        p[:category] = 0
       end
     end
   end
