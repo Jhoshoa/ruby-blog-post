@@ -4,7 +4,8 @@ class PostsController < ApplicationController
   before_action :authorize_post, only: [:edit, :update, :destroy]
 
   def index
-    @posts = Post.includes(:user).order(created_at: :desc)
+    @posts = Post.includes(:user, :categories).order(created_at: :desc)
+    @posts = @posts.joins(:categories).where(categories: { slug: params[:category] }) if params[:category].present?
   end
 
   def show
@@ -43,7 +44,7 @@ class PostsController < ApplicationController
   private
 
   def set_post
-    @post = Post.includes(:user).find(params[:id])
+    @post = Post.includes(:user, :categories).find(params[:id])
   end
 
   def authorize_post
@@ -53,6 +54,6 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:title, :body, :published, :image)
+    params.require(:post).permit(:title, :body, :published, :image, category_ids: [])
   end
 end

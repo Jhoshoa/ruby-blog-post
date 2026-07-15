@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   delete "logout", to: "sessions#destroy", as: :logout
 
   resources :posts
+  resources :categories, only: [:index, :show], param: :slug
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check

@@ -1,0 +1,11 @@
+technology:
+  name: Technology
+  slug: technology
+
+lifestyle:
+  name: Lifestyle
+  slug: lifestyle
+
+travel:
+  name: Travel
+  slug: travel

@@ -1,0 +1,60 @@
+<div class="mb-8">
+  <div class="flex items-center gap-3 mb-2">
+    <%= link_to categories_path, class: "inline-flex items-center text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors" do %>
+      <svg class="mr-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+      </svg>
+      Categories
+    <% end %>
+  </div>
+  <h1 class="text-3xl font-bold text-gray-900"><%= @category.name %></h1>
+  <p class="mt-2 text-sm text-gray-600"><%= pluralize(@posts.size, "post") %> in this category.</p>
+</div>
+
+<% if @posts.any? %>
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <% @posts.each do |post| %>
+      <div class="relative flex flex-col rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 hover:shadow-md transition-shadow overflow-hidden">
+        <% if post.image.attached? %>
+          <div class="h-40 w-full">
+            <%= image_tag post.image, class: "h-full w-full object-cover" %>
+          </div>
+        <% end %>
+        <div class="flex flex-col flex-1">
+          <div class="p-6 flex-1">
+            <div class="flex items-center gap-2 mb-3">
+              <% if post.published? %>
+                <span class="inline-flex items-center rounded-full bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Published</span>
+              <% else %>
+                <span class="inline-flex items-center rounded-full bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-700 ring-1 ring-inset ring-yellow-600/20">Draft</span>
+              <% end %>
+              <% post.categories.each do |cat| %>
+                <%= link_to cat.name, category_path(cat.slug), class: "inline-flex items-center rounded-full bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20 hover:bg-indigo-100 transition-colors" %>
+              <% end %>
+            </div>
+            <p class="text-xs text-gray-500 mb-1">By <%= post.user.name %></p>
+            <h2 class="text-lg font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
+              <%= link_to post.title, post %>
+            </h2>
+            <p class="mt-2 text-sm text-gray-600 line-clamp-3">
+              <%= post.body.truncate(150) %>
+            </p>
+          </div>
+          <div class="flex items-center justify-between border-t border-gray-100 px-6 py-4">
+            <span class="text-xs text-gray-500">
+              <%= time_ago_in_words(post.created_at) %> ago
+            </span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="text-center py-16">
+    <h3 class="text-sm font-semibold text-gray-900">No posts in this category yet</h3>
+    <p class="mt-1 text-sm text-gray-500">Check back later or browse other categories.</p>
+    <div class="mt-6">
+      <%= link_to "Browse All Posts", posts_path, class: "inline-flex items-center rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition-colors" %>
+    </div>
+  </div>
+<% end %>

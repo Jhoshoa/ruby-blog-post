@@ -45,6 +45,20 @@
     <%= form.label :published, "Publish immediately", class: "block text-sm font-medium leading-6 text-gray-900" %>
   </div>
 
+  <% if Category.any? %>
+    <div>
+      <label class="block text-sm font-medium leading-6 text-gray-900">Categories</label>
+      <div class="mt-2 flex flex-wrap gap-3">
+        <%= form.collection_check_boxes :category_ids, Category.order(:name), :id, :name do |b| %>
+          <label class="inline-flex items-center gap-1.5">
+            <%= b.check_box class: "h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" %>
+            <span class="text-sm text-gray-700"><%= b.text %></span>
+          </label>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
   <div>
     <%= form.label :image, "Cover image (optional)", class: "block text-sm font-medium leading-6 text-gray-900" %>
     <div class="mt-2 flex items-center gap-x-4">

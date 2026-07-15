@@ -133,4 +133,56 @@ class PostsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to posts_path
   end
+
+  # CATEGORIES ON POSTS
+  test "authenticated user can create post with categories" do
+    category = categories(:technology)
+    sign_in_as_user(@alice)
+    assert_difference("Post.count", 1) do
+      post posts_path, params: { post: { title: "Categorized Post", body: "Content", category_ids: [category.id] } }
+    end
+    assert_includes Post.last.categories, category
+  end
+
+  test "author can update post categories" do
+    category = categories(:technology)
+    sign_in_as_user(@alice)
+    patch post_path(@alice_post), params: { post: { category_ids: [category.id] } }
+    assert_redirected_to post_path(@alice_post)
+    @alice_post.reload
+    assert_includes @alice_post.categories, category
+  end
+
+  test "author can remove all categories from post" do
+    category = categories(:technology)
+    @alice_post.categories << category
+    sign_in_as_user(@alice)
+    patch post_path(@alice_post), params: { post: { category_ids: [] } }
+    @alice_post.reload
+    assert_empty @alice_post.categories
+  end
+
+  # CATEGORY FILTERING
+  test "index filters posts by category slug" do
+    category = categories(:technology)
+    @alice_post.categories << category
+
+    get posts_path(category: category.slug)
+    assert_response :success
+    assert_select "h2", text: @alice_post.title
+    assert_select "h2", text: @bob_post.title, count: 0
+  end
+
+  test "index shows all posts when no category filter" do
+    get posts_path
+    assert_response :success
+    assert_select "h2", text: @alice_post.title
+    assert_select "h2", text: @bob_post.title
+  end
+
+  test "index shows empty state when filtering by nonexistent category" do
+    get posts_path(category: "nonexistent")
+    assert_response :success
+    assert_select ".grid", count: 0
+  end
 end
